@@ -28,8 +28,13 @@ const bookingSchema = new Schema({
     },
     nic: {
         type: String,
-        required: true, // Make it required if necessary
+        required: true,
+    },
+    user: {
+        type: mongoose.Schema.Types.ObjectId, // Reference to the User model
+        ref: "User",
+        required: true,
     },
 });
 
-module.exports = mongoose.model("BookingModel", bookingSchema);
+module.exports = mongoose.model("Booking", bookingSchema);

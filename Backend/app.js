@@ -1,9 +1,9 @@
-require("dotenv").config(); 
+require("dotenv").config(); // Load environment variables from .env file
 
 const express = require("express");
 const mongoose = require("mongoose");
-const router = require("./Routes/BookingRoutes");
-const authRoutes = require("./Routes/authRoutes");
+const bookingRoutes = require("./Routes/BookingRoutes");
+const authRoutes = require("./Routes/authRoutes"); // Import the authentication routes
 const cors = require("cors");
 
 const app = express();
@@ -13,8 +13,8 @@ app.use(express.json());
 app.use(cors());
 
 // Routes
-app.use("/bookings", router);
-app.use("/auth", authRoutes);
+app.use("/bookings", bookingRoutes); // Booking routes
+app.use("/auth", authRoutes); // Authentication routes
 
 // MongoDB connection
 mongoose
@@ -23,7 +23,7 @@ mongoose
         console.log("Connected to MongoDB");
 
         // Start the server
-        const port = process.env.PORT || 5173; // Use PORT from .env or default to 5000
+        const port = process.env.PORT || 5000; // Use PORT from .env or default to 5000
         app.listen(port, () => {
             console.log(`Server is running on port ${port}`);
         });
