@@ -4,7 +4,7 @@ const router = express.Router();
 
 const Booking = require("../Model/BookingModel");
 
-const BookingController = require("../Controller/BookingControlle");
+const BookingController = require("../Controller/BookingController");
 
 router.get("/",BookingController.getAllBooking);
 router.post("/",BookingController.addBookings);
