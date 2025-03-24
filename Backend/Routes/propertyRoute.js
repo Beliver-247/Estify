@@ -9,7 +9,7 @@ import {
   requestPropertyDelete,
   getPendingRequests,
   rejectPropertyRequest
-} from "../Controllers/propertyController.js";
+} from "../Controller/propertyController.js";
 
 const router = express.Router();
 
@@ -27,7 +27,5 @@ router.delete("/delete/:id", requestPropertyDelete);
 router.post("/approve/:id", approvePropertyRequest);
 router.get("/", getAllProperties);
 router.get("/:id", getPropertyById);
-
-
 
 export default router;

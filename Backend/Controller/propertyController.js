@@ -1,4 +1,4 @@
-// import Property from "../Model/propertyModel.js";
+import Property from "../Model/propertyModel.js";
 
 export const submitPropertyRequest = async (req, res) => {
   try {
@@ -29,6 +29,8 @@ export const approvePropertyRequest = async (req, res) => {
         original.contactName = property.contactName;
         original.contactNumber = property.contactNumber;
         original.propertyType = property.propertyType;
+        original.district = property.district;
+        original.price = property.price;
         if (property.image) original.image = property.image;
         await original.save();
         await Property.findByIdAndDelete(property._id);
@@ -49,26 +51,59 @@ export const approvePropertyRequest = async (req, res) => {
 };
 
 export const getAllProperties = async (req, res) => {
-  const properties = await Property.find({ status: "approved" });
-  res.json(properties);
+  try {
+    const { district, propertyType, minPrice, maxPrice } = req.query;
+    let query = { status: "approved" };
+
+    if (district) query.district = district;
+    if (propertyType) query.propertyType = propertyType;
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = Number(minPrice);
+      if (maxPrice) query.price.$lte = Number(maxPrice);
+    }
+
+    const properties = await Property.find(query);
+    res.json(properties);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 export const getPropertyById = async (req, res) => {
-  const property = await Property.findById(req.params.id);
-  if (!property || property.status !== "approved") return res.status(404).json({ message: "Not found" });
-  res.json(property);
+  try {
+    const property = await Property.findById(req.params.id);
+    if (!property || property.status !== "approved") {
+      return res.status(404).json({ message: "Property not found" });
+    }
+    res.json(property);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 export const requestPropertyUpdate = async (req, res) => {
   try {
     const image = req.file?.filename || null;
-    const { originalPropertyId, title, description, contactName, contactNumber, propertyType } = req.body;
+    const { 
+      originalPropertyId, 
+      title, 
+      description, 
+      contactName, 
+      contactNumber, 
+      propertyType,
+      district,
+      price
+    } = req.body;
+    
     const newRequest = new Property({
       title,
       description,
       contactName,
       contactNumber,
       propertyType,
+      district,
+      price,
       image,
       status: "pending",
       requestType: "update",
@@ -111,8 +146,6 @@ export const rejectPropertyRequest = async (req, res) => {
   }
 };
 
-
-
 export const requestPropertyDelete = async (req, res) => {
   try {
     const property = await Property.findById(req.params.id);
@@ -127,4 +160,3 @@ export const requestPropertyDelete = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-

@@ -1,4 +1,3 @@
-// PropertyModel.js
 import mongoose from "mongoose";
 
 const propertySchema = new mongoose.Schema({
@@ -28,6 +27,15 @@ const propertySchema = new mongoose.Schema({
         enum: ["rent", "selling"],
         required: [true, "Property type is required"],
     },
+    district: {
+        type: String,
+        required: [true, "District is required"],
+    },
+    price: {
+        type: Number,
+        required: [true, "Price is required"],
+        min: [0, "Price cannot be negative"],
+    },
     image: {
         type: String,
     },
@@ -49,4 +57,4 @@ const propertySchema = new mongoose.Schema({
     timestamps: true,
 });
 
-export default mongoose.model("Property", propertySchema);
+export default mongoose.models.Property || mongoose.model("Property", propertySchema);
