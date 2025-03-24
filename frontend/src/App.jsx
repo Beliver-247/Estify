@@ -6,6 +6,8 @@ import PropertyTable from "./components/Properties/Allproperties";
 import AddBooking from "./components/Booking/addBooking";
 import UserBookings from "./components/Booking/UserBookings";
 import MyInquiries from "./components/Inquiry/MyInquiries";
+import AdminBookings from "./components/Admin/AdminBookings";
+import AdminInquiries from "./components/Admin/AdminInquiries";
 
 
 function App() {
@@ -18,6 +20,8 @@ function App() {
       <Route path="/bookings/:propertyId" element={<AddBooking />} />
       <Route path="/my-bookings" element={<UserBookings />} />
       <Route path="/my-inquiries" element={<MyInquiries />} />
+      <Route path="/admin/bookings" element={<AdminBookings />} />
+      <Route path="/admin/inquiries" element={<AdminInquiries />} />
     </Routes>
   );
 }
