@@ -59,6 +59,7 @@ app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
 app.use("/inquiries", inquiryRoutes);
 app.use("/properties", propertyRoutes); // Added property routes
+app.use("/uploads", express.static('uploads'));
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {

@@ -50,12 +50,13 @@ export const approvePropertyRequest = async (req, res) => {
   }
 };
 
+// In your propertyController.js
 export const getAllProperties = async (req, res) => {
   try {
     const { district, propertyType, minPrice, maxPrice } = req.query;
     let query = { status: "approved" };
 
-    if (district) query.district = district;
+    if (district) query.district = { $regex: district, $options: 'i' }; // Case-insensitive search
     if (propertyType) query.propertyType = propertyType;
     if (minPrice || maxPrice) {
       query.price = {};

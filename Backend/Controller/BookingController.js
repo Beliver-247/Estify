@@ -148,24 +148,53 @@ export const getById = async (req, res) => {
 export const updateBooking = async (req, res) => {
     const id = req.params.id;
     const userId = req.user.userId;
-    const { firstName, lastName, email, phone, age, address, nic } = req.body;
+    const { startDate, endDate } = req.body; // Only dates can be updated
 
-    let booking;
+    // Validate dates
+    if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+        return res.status(400).json({ message: "End date must be after start date" });
+    }
+
     try {
-        booking = await Booking.findOneAndUpdate(
+        // Check if the booking exists and belongs to the user
+        const existingBooking = await Booking.findOne({ _id: id, user: userId });
+        if (!existingBooking) {
+            return res.status(404).json({ message: "Booking not found" });
+        }
+
+        // Check for overlapping bookings if dates are being changed
+        if (startDate || endDate) {
+            const newStart = startDate || existingBooking.startDate;
+            const newEnd = endDate || existingBooking.endDate;
+
+            const overlappingBooking = await Booking.findOne({
+                property: existingBooking.property,
+                _id: { $ne: id }, // Exclude current booking
+                status: { $ne: "rejected" },
+                $or: [
+                    { startDate: { $lt: newEnd }, endDate: { $gt: newStart } },
+                ],
+            });
+
+            if (overlappingBooking) {
+                return res.status(400).json({ 
+                    message: "Property is not available during the requested dates" 
+                });
+            }
+        }
+
+        // Update the booking
+        const updatedBooking = await Booking.findOneAndUpdate(
             { _id: id, user: userId },
-            { firstName, lastName, email, phone, age, address, nic },
+            { startDate, endDate },
             { new: true }
         ).populate("property");
+
+        return res.status(200).json({ booking: updatedBooking });
     } catch (err) {
-        console.log(err);
+        console.error(err);
         return res.status(500).json({ message: "Internal server error" });
     }
-
-    if (!booking) {
-        return res.status(404).json({ message: "Unable to update booking details" });
-    }
-    return res.status(200).json({ booking });
 };
 
 export const deleteBooking = async (req, res) => {
