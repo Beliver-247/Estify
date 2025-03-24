@@ -1,12 +1,14 @@
-require("dotenv").config(); // Load environment variables from .env file
+// index.js
+import dotenv from "dotenv"; // Import dotenv
+dotenv.config(); // Load environment variables from .env file
 
-const express = require("express");
-const mongoose = require("mongoose");
-const bookingRoutes = require("./Routes/BookingRoutes");
-const authRoutes = require("./Routes/authRoutes"); // Import the authentication routes
-const adminRoutes = require("./Routes/AdminRoutes"); // Import the admin routes
-const inquiryRoutes = require("./Routes/InquiryRoutes"); // Import the inquiry routes
-const cors = require("cors");
+import express from "express";
+import mongoose from "mongoose";
+import bookingRoutes from "./Routes/BookingRoutes.js"; // Adjusted path with .js extension
+import authRoutes from "./Routes/AuthRoutes.js"; // Adjusted path with .js extension
+import adminRoutes from "./Routes/AdminRoutes.js"; // Adjusted path to match previous naming
+import inquiryRoutes from "./Routes/InquiryRoutes.js"; // Adjusted path with .js extension
+import cors from "cors";
 
 const app = express();
 

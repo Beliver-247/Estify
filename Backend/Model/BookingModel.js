@@ -1,45 +1,30 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+// BookingModel.js
+import mongoose from "mongoose";
 
-const bookingSchema = new Schema({
-    firstName: {
-        type: String,
-        required: true,
-    },
-    lastName: {
-        type: String,
-        required: true,
-    },
-    email: {
-        type: String,
-        required: true,
-    },
-    phone: {
-        type: Number,
-        required: true,
-    },
-    age: {
-        type: Number,
-        required: true,
-    },
-    address: {
-        type: String,
-        required: true,
-    },
-    nic: {
-        type: String,
-        required: true,
-    },
+const bookingSchema = new mongoose.Schema({
     user: {
-        type: mongoose.Schema.Types.ObjectId, // Reference to the User model
+        type: mongoose.Schema.Types.ObjectId,
         ref: "User",
+        required: true,
+    },
+    property: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Property",
+        required: true,
+    },
+    startDate: {
+        type: Date,
+        required: true,
+    },
+    endDate: {
+        type: Date,
         required: true,
     },
     status: {
         type: String,
-        enum: ["pending", "confirmed", "rejected"], // Allowed status values
-        default: "pending", // Default status
+        enum: ["pending", "confirmed", "rejected"],
+        default: "pending",
     },
 });
 
-module.exports = mongoose.model("Booking", bookingSchema);
+export default mongoose.model("Booking", bookingSchema);

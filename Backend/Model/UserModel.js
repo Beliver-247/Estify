@@ -1,14 +1,14 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
-const Schema = mongoose.Schema;
+// UserModel.js
+import mongoose from "mongoose";
+import bcrypt from "bcrypt";
 
-const userSchema = new Schema({
+const userSchema = new mongoose.Schema({
     username: {
         type: String,
         required: true,
         unique: true,
         trim: true,
-        minlength: 3
+        minlength: 3,
     },
     email: {
         type: String,
@@ -16,26 +16,26 @@ const userSchema = new Schema({
         unique: true,
         trim: true,
         lowercase: true,
-        match: [/.+\@.+\..+/, 'Please fill a valid email address']
+        match: [/.+\@.+\..+/, "Please fill a valid email address"],
     },
     password: {
         type: String,
         required: true,
-        minlength: 6
+        minlength: 6,
     },
     role: {
         type: String,
-        enum: ['user', 'admin'],
-        default: 'user'
+        enum: ["user", "admin"],
+        default: "user",
     },
     createdAt: {
         type: Date,
-        default: Date.now
+        default: Date.now,
     },
     updatedAt: {
         type: Date,
-        default: Date.now
-    }
+        default: Date.now,
+    },
 });
 
 // Hash the password before saving the user
@@ -56,4 +56,4 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
     return await bcrypt.compare(candidatePassword, this.password);
 };
 
-module.exports = mongoose.model("User", userSchema);
+export default mongoose.model("User", userSchema);

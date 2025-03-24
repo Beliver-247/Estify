@@ -1,8 +1,10 @@
-const express = require("express");
+// Routes/AdminBookingRoutes.js
+import express from "express";
+import * as BookingController from "../Controller/BookingController.js"; // Adjusted path with .js extension
+import authenticate from "../middleware/authenticate.js"; // Adjusted path with .js extension
+import isAdmin from "../middleware/isAdmin.js"; // Adjusted path with .js extension
+
 const router = express.Router();
-const BookingController = require("../Controller/BookingController");
-const authenticate = require("../middleware/authenticate");
-const isAdmin = require("../middleware/isAdmin"); // Middleware to check if the user is an admin
 
 // Confirm a booking (admin only)
 router.put("/bookings/:id/confirm", authenticate, isAdmin, BookingController.confirmBooking);
@@ -10,4 +12,4 @@ router.put("/bookings/:id/confirm", authenticate, isAdmin, BookingController.con
 // Reject a booking (admin only)
 router.put("/bookings/:id/reject", authenticate, isAdmin, BookingController.rejectBooking);
 
-module.exports = router;
+export default router;

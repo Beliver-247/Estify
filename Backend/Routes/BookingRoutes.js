@@ -1,7 +1,9 @@
-const express = require("express");
+// Routes/BookingRoutes.js
+import express from "express";
+import * as BookingController from "../Controller/BookingController.js"; // Adjusted path with .js extension
+import authenticate from "../middleware/authenticate.js"; // Adjusted path with .js extension
+
 const router = express.Router();
-const BookingController = require("../Controller/BookingController");
-const authenticate = require("../middleware/authenticate"); // Import the authentication middleware
 
 // Protect all routes with the authenticate middleware
 router.get("/", authenticate, BookingController.getAllBooking);
@@ -10,4 +12,4 @@ router.get("/:id", authenticate, BookingController.getById);
 router.put("/:id", authenticate, BookingController.updateBooking);
 router.delete("/:id", authenticate, BookingController.deleteBooking);
 
-module.exports = router;
+export default router;

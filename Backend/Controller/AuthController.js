@@ -1,8 +1,9 @@
-const User = require("../Model/UserModel");
-const { generateToken } = require("../utils/jwt");
+// UserController.js
+import User from "../Model/UserModel.js"; // Adjusted path to match ES Modules and your model folder
+import { generateToken } from "../utils/jwt.js"; // Adjusted path with .js extension
 
 // Register a new user
-const registerUser = async (req, res) => {
+export const registerUser = async (req, res) => {
     const { username, email, password } = req.body;
 
     try {
@@ -19,7 +20,7 @@ const registerUser = async (req, res) => {
 };
 
 // Login a user
-const loginUser = async (req, res) => {
+export const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
     try {
@@ -41,9 +42,4 @@ const loginUser = async (req, res) => {
     } catch (err) {
         res.status(400).json({ message: "Error logging in", error: err.message });
     }
-};
-
-module.exports = {
-    registerUser,
-    loginUser,
 };
