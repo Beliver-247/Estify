@@ -3,17 +3,31 @@ const Booking = require("../Model/BookingModel");
 // Get all bookings for the logged-in user
 const getAllBooking = async (req, res) => {
     const userId = req.user.userId; // Get the user ID from the authenticated request
+    const userRole = req.user.role; // Get the user role from the authenticated request
+    const { status } = req.query; // Optional status filter
+
+    let query = {};
+
+    // If the user is not an admin, filter bookings by their user ID
+    if (userRole !== "admin") {
+        query.user = userId;
+    }
+
+    // Add status to the query if provided
+    if (status) {
+        query.status = status;
+    }
 
     let bookings;
 
     try {
-        bookings = await Booking.find({ user: userId }); // Filter bookings by user ID
+        bookings = await Booking.find(query); // Fetch bookings based on the query
     } catch (err) {
         console.log(err);
         return res.status(500).json({ message: "Internal server error" });
     }
 
-    if (!bookings) {
+    if (!bookings || bookings.length === 0) {
         return res.status(404).json({ message: "No bookings found" });
     }
 
@@ -39,6 +53,52 @@ const addBookings = async (req, res) => {
         return res.status(400).json({ message: "Unable to add booking" });
     }
     return res.status(200).json({ bookings });
+};
+
+// Confirm a booking (admin only)
+const confirmBooking = async (req, res) => {
+    const id = req.params.id;
+
+    let booking;
+
+    try {
+        booking = await Booking.findByIdAndUpdate(
+            id,
+            { status: "confirmed" }, // Update the status to "confirmed"
+            { new: true } // Return the updated document
+        );
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+
+    if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+    }
+    return res.status(200).json({ booking });
+};
+
+// Reject a booking (admin only)
+const rejectBooking = async (req, res) => {
+    const id = req.params.id;
+
+    let booking;
+
+    try {
+        booking = await Booking.findByIdAndUpdate(
+            id,
+            { status: "rejected" }, // Update the status to "rejected"
+            { new: true } // Return the updated document
+        );
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+
+    if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+    }
+    return res.status(200).json({ booking });
 };
 
 // Get a booking by ID for the logged-in user
@@ -120,4 +180,6 @@ module.exports = {
     getById,
     updateBooking,
     deleteBooking,
+    confirmBooking,
+    rejectBooking,
 };

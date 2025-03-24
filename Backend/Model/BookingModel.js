@@ -35,6 +35,11 @@ const bookingSchema = new Schema({
         ref: "User",
         required: true,
     },
+    status: {
+        type: String,
+        enum: ["pending", "confirmed", "rejected"], // Allowed status values
+        default: "pending", // Default status
+    },
 });
 
 module.exports = mongoose.model("Booking", bookingSchema);
