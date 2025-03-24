@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const bookingRoutes = require("./Routes/BookingRoutes");
 const authRoutes = require("./Routes/authRoutes"); // Import the authentication routes
 const adminRoutes = require("./Routes/AdminRoutes"); // Import the admin routes
+const inquiryRoutes = require("./Routes/InquiryRoutes"); // Import the inquiry routes
 const cors = require("cors");
 
 const app = express();
@@ -17,6 +18,7 @@ app.use(cors());
 app.use("/bookings", bookingRoutes); // Booking routes
 app.use("/auth", authRoutes); // Authentication routes
 app.use("/admin", adminRoutes); // Admin routes
+app.use("/inquiries", inquiryRoutes); // Inquiry routes
 
 // MongoDB connection
 mongoose
