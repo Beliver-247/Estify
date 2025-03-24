@@ -1,3 +1,4 @@
+// middleware/isAdmin.js
 const isAdmin = (req, res, next) => {
     if (req.user.role !== "admin") {
         return res.status(403).json({ message: "Access denied. Admin role required." });
@@ -5,4 +6,4 @@ const isAdmin = (req, res, next) => {
     next();
 };
 
-module.exports = isAdmin;
+export default isAdmin;

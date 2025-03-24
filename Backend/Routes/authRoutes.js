@@ -1,6 +1,8 @@
-const express = require("express");
+// Routes/AuthRoutes.js
+import express from "express";
+import * as AuthController from "../Controller/AuthController.js"; // Adjusted path with .js extension
+
 const router = express.Router();
-const AuthController = require("../Controller/AuthController");
 
 // Register a new user
 router.post("/register", AuthController.registerUser);
@@ -8,4 +10,4 @@ router.post("/register", AuthController.registerUser);
 // Login a user
 router.post("/login", AuthController.loginUser);
 
-module.exports = router;
+export default router;

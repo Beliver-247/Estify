@@ -1,8 +1,10 @@
-const express = require("express");
+// Routes/InquiryRoutes.js
+import express from "express";
+import * as InquiryController from "../Controller/InquiryController.js"; // Adjusted path with .js extension
+import authenticate from "../middleware/authenticate.js"; // Adjusted path with .js extension
+import isAdmin from "../middleware/isAdmin.js"; // Adjusted path with .js extension
+
 const router = express.Router();
-const InquiryController = require("../Controller/InquiryController");
-const authenticate = require("../middleware/authenticate");
-const isAdmin = require("../middleware/isAdmin");
 
 // Submit an inquiry (logged-in users only)
 router.post("/", authenticate, InquiryController.submitInquiry);
@@ -16,4 +18,4 @@ router.get("/", authenticate, InquiryController.getUserInquiries);
 // Get all inquiries (admin only)
 router.get("/all", authenticate, isAdmin, InquiryController.getAllInquiries);
 
-module.exports = router;
+export default router;

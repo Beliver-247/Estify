@@ -1,14 +1,14 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+// InquiryModel.js
+import mongoose from "mongoose";
 
-const inquirySchema = new Schema({
+const inquirySchema = new mongoose.Schema({
     booking: {
-        type: mongoose.Schema.Types.ObjectId, // Reference to the Booking model
+        type: mongoose.Schema.Types.ObjectId,
         ref: "Booking",
         required: true,
     },
     user: {
-        type: mongoose.Schema.Types.ObjectId, // Reference to the User model
+        type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: true,
     },
@@ -18,12 +18,12 @@ const inquirySchema = new Schema({
     },
     response: {
         type: String,
-        default: "", // Admin's response to the inquiry
+        default: "",
     },
     status: {
         type: String,
-        enum: ["pending", "responded"], // Inquiry status
-        default: "pending", // Default status
+        enum: ["pending", "responded"],
+        default: "pending",
     },
     createdAt: {
         type: Date,
@@ -41,4 +41,4 @@ inquirySchema.pre("save", function (next) {
     next();
 });
 
-module.exports = mongoose.model("Inquiry", inquirySchema);
+export default mongoose.model("Inquiry", inquirySchema);
