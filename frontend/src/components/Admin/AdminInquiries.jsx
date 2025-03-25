@@ -1,191 +1,156 @@
-// AdminInquiries.jsx
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Button,
-  TextField,
-  Box,
-  Typography,
-  Modal,
-  CircularProgress,
-} from '@mui/material';
+// components/Admin/AdminInquiries.jsx
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 const AdminInquiries = () => {
   const [inquiries, setInquiries] = useState([]);
-  const [selectedInquiry, setSelectedInquiry] = useState(null);
-  const [response, setResponse] = useState('');
-  const [openModal, setOpenModal] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState("");
+  const [responseText, setResponseText] = useState({});
+  const token = localStorage.getItem("token");
 
+  // Fetch all inquiries on component mount
   useEffect(() => {
+    const fetchInquiries = async () => {
+      try {
+        const { data } = await axios.get("http://localhost:5000/inquiries/all", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setInquiries(data.inquiries);
+        setLoading(false);
+      } catch (err) {
+        setError(err.response?.data?.message || "Failed to fetch inquiries");
+        setLoading(false);
+      }
+    };
+
     fetchInquiries();
-  }, []);
+  }, [token]);
 
-  const fetchInquiries = async () => {
-    setLoading(true);
-    setError(null);
-    console.log('Fetching inquiries...');
-    console.log('Token:', localStorage.getItem('token'));
+  // Handle response submission
+  const handleRespond = async (inquiryId) => {
+    if (!responseText[inquiryId] || responseText[inquiryId].trim() === "") {
+      setError("Response cannot be empty");
+      return;
+    }
+
     try {
-      const res = await axios.get('/inquiries/all', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      });
-      console.log('API Response:', res.data);
-      const inquiryData = Array.isArray(res.data.inquiries) ? res.data.inquiries : [];
-      console.log('Processed Inquiries:', inquiryData);
-      setInquiries(inquiryData);
+      const { data } = await axios.put(
+        `http://localhost:5000/inquiries/${inquiryId}/respond`,
+        { response: responseText[inquiryId] },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      // Update the inquiry in the state
+      setInquiries((prevInquiries) =>
+        prevInquiries.map((inquiry) =>
+          inquiry._id === inquiryId ? data.inquiry : inquiry
+        )
+      );
+      setResponseText((prev) => ({ ...prev, [inquiryId]: "" })); // Clear the response input
+      setError("");
     } catch (err) {
-      console.error('Error fetching inquiries:', err.response?.data || err.message);
-      setError(`Failed to load inquiries: ${err.response?.data?.message || err.message}`);
-      setInquiries([]);
-    } finally {
-      setLoading(false);
+      setError(err.response?.data?.message || "Failed to submit response");
     }
   };
 
-  const handleRespondClick = (inquiry) => {
-    setSelectedInquiry(inquiry);
-    setResponse(inquiry.response || '');
-    setOpenModal(true);
-  };
-
-  const handleSubmitResponse = async () => {
-    if (!selectedInquiry) return;
-    try {
-      const res = await axios.put(
-        `/inquiries/${selectedInquiry._id}`,
-        { response },
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-      );
-      const updatedInquiry = res.data.inquiry;
-      setInquiries((prev) =>
-        prev.map((inq) => (inq._id === updatedInquiry._id ? updatedInquiry : inq))
-      );
-      setOpenModal(false);
-      setSelectedInquiry(null);
-      setResponse('');
-    } catch (err) {
-      console.error('Error responding to inquiry:', err.response?.data || err.message);
-      alert('Failed to submit response. Please try again.');
-    }
-  };
-
-  const modalStyle = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    boxShadow: 24,
-    p: 4,
-  };
+  if (loading) {
+    return <div>Loading inquiries...</div>;
+  }
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>
-        Admin Inquiries
-      </Typography>
-
-      {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-          <CircularProgress />
-        </Box>
-      ) : error ? (
-        <Typography color="error" align="center">
-          {error}
-        </Typography>
-      ) : inquiries.length === 0 ? (
-        <Typography align="center">No inquiries available.</Typography>
+    <div style={{ padding: "20px" }}>
+      <h2>All Inquiries</h2>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      {inquiries.length === 0 ? (
+        <p>No inquiries found.</p>
       ) : (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>User</TableCell>
-                <TableCell>Booking ID</TableCell>
-                <TableCell>Message</TableCell>
-                <TableCell>Response</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {inquiries.map((inquiry) => (
-                <TableRow key={inquiry._id}>
-                  <TableCell>{inquiry.user?.username || 'Unknown'}</TableCell>
-                  <TableCell>{inquiry.booking?._id || 'N/A'}</TableCell>
-                  <TableCell>{inquiry.message}</TableCell>
-                  <TableCell>{inquiry.response || 'No response yet'}</TableCell>
-                  <TableCell>{inquiry.status}</TableCell>
-                  <TableCell>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => handleRespondClick(inquiry)}
-                    >
-                      Respond
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr>
+              <th style={tableHeaderStyle}>User</th>
+              <th style={tableHeaderStyle}>Booking ID</th>
+              <th style={tableHeaderStyle}>Message</th>
+              <th style={tableHeaderStyle}>Status</th>
+              <th style={tableHeaderStyle}>Response</th>
+              <th style={tableHeaderStyle}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {inquiries.map((inquiry) => (
+              <tr key={inquiry._id} style={tableRowStyle}>
+                <td style={tableCellStyle}>
+                  {inquiry.user?.email || "Unknown User"}
+                </td>
+                <td style={tableCellStyle}>{inquiry.booking?._id}</td>
+                <td style={tableCellStyle}>{inquiry.message}</td>
+                <td style={tableCellStyle}>{inquiry.status}</td>
+                <td style={tableCellStyle}>
+                  {inquiry.response || "No response yet"}
+                </td>
+                <td style={tableCellStyle}>
+                  {inquiry.status === "pending" && (
+                    <>
+                      <textarea
+                        value={responseText[inquiry._id] || ""}
+                        onChange={(e) =>
+                          setResponseText((prev) => ({
+                            ...prev,
+                            [inquiry._id]: e.target.value,
+                          }))
+                        }
+                        placeholder="Type your response..."
+                        rows="3"
+                        style={{ width: "100%", marginBottom: "10px" }}
+                      />
+                      <button
+                        onClick={() => handleRespond(inquiry._id)}
+                        style={buttonStyle}
+                      >
+                        Submit Response
+                      </button>
+                    </>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
-
-      <Modal open={openModal} onClose={() => setOpenModal(false)}>
-        <Box sx={modalStyle}>
-          <Typography variant="h6" gutterBottom>
-            Respond to Inquiry
-          </Typography>
-          {selectedInquiry && (
-            <>
-              <Typography variant="body2" gutterBottom>
-                <strong>User:</strong> {selectedInquiry.user?.username || 'Unknown'}
-              </Typography>
-              <Typography variant="body2" gutterBottom>
-                <strong>Message:</strong> {selectedInquiry.message}
-              </Typography>
-              <TextField
-                label="Response"
-                multiline
-                rows={4}
-                value={response}
-                onChange={(e) => setResponse(e.target.value)}
-                fullWidth
-                variant="outlined"
-                sx={{ mt: 2 }}
-              />
-              <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleSubmitResponse}
-                >
-                  Submit Response
-                </Button>
-                <Button
-                  variant="outlined"
-                  onClick={() => setOpenModal(false)}
-                >
-                  Cancel
-                </Button>
-              </Box>
-            </>
-          )}
-        </Box>
-      </Modal>
-    </Box>
+    </div>
   );
+};
+
+// Basic inline styles for the table and button
+const tableHeaderStyle = {
+  border: "1px solid #ddd",
+  padding: "8px",
+  backgroundColor: "#f2f2f2",
+  textAlign: "left",
+};
+
+const tableRowStyle = {
+  borderBottom: "1px solid #ddd",
+};
+
+const tableCellStyle = {
+  border: "1px solid #ddd",
+  padding: "8px",
+  verticalAlign: "top",
+};
+
+const buttonStyle = {
+  padding: "5px 10px",
+  backgroundColor: "#4CAF50",
+  color: "white",
+  border: "none",
+  borderRadius: "4px",
+  cursor: "pointer",
 };
 
 export default AdminInquiries;
