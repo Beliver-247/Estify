@@ -9,6 +9,7 @@ const router = express.Router();
 // Confirm a booking (admin only)
 router.put("/bookings/:id/confirm", authenticate, isAdmin, BookingController.confirmBooking);
 
+router.get("/bookings", authenticate, isAdmin, BookingController.getAllBooking);
 // Reject a booking (admin only)
 router.put("/bookings/:id/reject", authenticate, isAdmin, BookingController.rejectBooking);
 
